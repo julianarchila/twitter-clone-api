@@ -40,7 +40,8 @@ DJANGO_APPS = [
     'django.contrib.staticfiles',
 ]
 LOCAL_APPS = [
-    'api.users.apps.UsersConfig',
+    'api.users.apps.UsersAppConfig',
+    'api.tweets.apps.TweetsAppConfig',
 ]
 
 INSTALLED_APPS = DJANGO_APPS + LOCAL_APPS 
