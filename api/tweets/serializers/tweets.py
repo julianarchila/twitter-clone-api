@@ -13,9 +13,13 @@ from api.tweets.models import Tweet
 class TweetModelSerializer(serializers.ModelSerializer): 
     """ Tweet model serializer. """
     user = UserModelSerializer(read_only=True)
+    likes = serializers.SerializerMethodField(read_only=True)
     class Meta:
         model = Tweet
         fields = "__all__"
+
+    def get_likes(self, obj):
+        return obj.likes.count()
 
 class TweetCreateSerializer(serializers.ModelSerializer):
     """ Create tweet serializer. """
