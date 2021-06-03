@@ -11,10 +11,12 @@ from rest_framework.authtoken.models import Token
 
 # Models
 from api.users.models import User, Profile
+from api.users.serializers.profiles import ProfileModelSerializer
 
 
 class UserModelSerializer(serializers.ModelSerializer):
     """ User model serializer. """
+    profile = ProfileModelSerializer(read_only=True)
     class Meta:
         model = User
         fields = (
@@ -23,6 +25,7 @@ class UserModelSerializer(serializers.ModelSerializer):
             "first_name",
             "last_name",
             "is_staff",
+            "profile"
         )
 
 

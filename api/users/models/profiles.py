@@ -2,7 +2,6 @@
 
 # Django
 from django.db import models
-from django.db.models.fields import NullBooleanField
 
 # Utils
 from api.utils.models import TwModel
@@ -16,11 +15,14 @@ class Profile(TwModel):
         blank=True,
         null=True
     )
-    picture = models.ImageField(
+    header = models.ImageField(
         "Profile header",
         upload_to="users/headers/",
         blank=True,
         null=True
     )
 
-    bio = models.TextField(max_length=160)
+    bio = models.TextField(max_length=160, blank=True, null=True)
+
+    def __str__(self) -> str:
+        return f"Profile: {self.user.username}"

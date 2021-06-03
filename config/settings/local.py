@@ -17,3 +17,7 @@ DATABASES = {
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
+
+# Media
+MEDIA_ROOT = BASE_DIR / "media"
+MEDIA_URL = "/media/"

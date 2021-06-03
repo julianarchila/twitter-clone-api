@@ -5,7 +5,7 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 
 # Models
-from api.users.models import User 
+from api.users.models import User, Profile
 
 
 class CustomeUserAdmin(UserAdmin):
@@ -15,3 +15,5 @@ class CustomeUserAdmin(UserAdmin):
 
 
 admin.site.register(User, CustomeUserAdmin)
+
+admin.site.register(Profile)
