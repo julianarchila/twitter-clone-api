@@ -52,7 +52,7 @@ LOCAL_APPS = [
     'api.tweets.apps.TweetsAppConfig',
 ]
 
-INSTALLED_APPS = DJANGO_APPS+ THIRD_PARTY_APPS + LOCAL_APPS
+INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -80,7 +80,6 @@ TEMPLATES = [
         },
     },
 ]
-
 
 
 # Password validation
@@ -116,7 +115,7 @@ REST_FRAMEWORK = {
         # 'rest_framework.renderers.BrowsableAPIRenderer',
         'rest_framework.renderers.JSONRenderer',
     ],
-    'DEFAULT_PARSER_CLASSES': [
-        'rest_framework.parsers.JSONParser',
-    ]
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.TokenAuthentication',
+    ],
 }
