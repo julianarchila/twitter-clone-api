@@ -1,6 +1,7 @@
 """Tweet actions serializers. """
 
 # Django REST Framework
+from django.db.models import fields
 from rest_framework import serializers
 
 # Serializers
@@ -33,3 +34,23 @@ class LikeTweetSerializer(serializers.Serializer):
 
         return tweet
 
+
+class RetweetSerializer(serializers.ModelSerializer):
+    """ Retweet serializer. """
+    user = serializers.HiddenField(default=serializers.CurrentUserDefault())
+    parent = serializers.IntegerField()
+
+    class Meta:
+        model = Tweet
+        fields = "__all__"
+
+
+    def validate_parent(self, data):
+        try:
+            parent_tweet = Tweet.objects.get(id=data)
+        except Tweet.DoesNotExist:
+            raise serializers.ValidationError("Tweet not found.")
+        
+        return parent_tweet
+
+    
