@@ -1,7 +1,11 @@
 """ User serializers. """
 
 # Django
+from django.conf import settings
+from django.core.mail import EmailMultiAlternatives
 from django.contrib.auth import authenticate, password_validation
+from django.utils import timezone
+from django.template.loader import render_to_string 
 
 # Django REST Framework
 from django.db.models import fields
@@ -13,10 +17,15 @@ from rest_framework.authtoken.models import Token
 from api.users.models import User, Profile
 from api.users.serializers.profiles import ProfileModelSerializer
 
+# Utilities
+from datetime import timedelta
+import jwt
+
 
 class UserModelSerializer(serializers.ModelSerializer):
     """ User model serializer. """
     profile = ProfileModelSerializer(read_only=True)
+
     class Meta:
         model = User
         fields = (
@@ -38,6 +47,9 @@ class UserLoginSerializer(serializers.Serializer):
         user = authenticate(username=data["email"], password=data["password"])
         if not user:
             raise serializers.ValidationError("Invalid credentials.")
+        if not user.is_verified:
+            raise serializers.ValidationError(
+                "Verify your email in order to login")
 
         self.context["user"] = user
         return data
@@ -46,6 +58,7 @@ class UserLoginSerializer(serializers.Serializer):
         user = self.context["user"]
         token, created = Token.objects.get_or_create(user=user)
         return user, token.key
+
 
 class UserSignUpSerializer(serializers.Serializer):
     """ User signup serializer. 
@@ -73,7 +86,7 @@ class UserSignUpSerializer(serializers.Serializer):
     first_name = serializers.CharField(min_length=2, max_length=30)
     last_name = serializers.CharField(min_length=2, max_length=30)
 
-    # Password 
+    # Password
     password = serializers.CharField(min_length=8, max_length=200)
     password_confirmation = serializers.CharField(min_length=8, max_length=200)
 
@@ -92,10 +105,60 @@ class UserSignUpSerializer(serializers.Serializer):
         data.pop("password_confirmation")
         # Create user
         user = User.objects.create_user(**data, is_staff=False)
-
         # Create user's objects
         Profile.objects.create(user=user)
-
+        self.send_confirmation_email(user)
         token, created = Token.objects.get_or_create(user=user)
-
         return user, token.key
+
+    def send_confirmation_email(self, user):
+        token = self.gen_verification_token(user)
+        subject = f"Welcome @{user.username}! Verify your account to start using the app."
+        from_email = settings.EMAIL_HOST_USER 
+
+        content = render_to_string(
+            "email_confirmation.html",
+            {"token": token, "user": user}
+        )
+
+        msg = EmailMultiAlternatives(subject, content, from_email, [user.email])
+        msg.attach_alternative(content, "text/html")
+        msg.send()
+
+    def gen_verification_token(self, user):
+        exp_date = timezone.now() + timedelta(days=3)
+        pay_load = {
+            "user": user.username,
+            "exp": int(exp_date.timestamp()),
+            "type": "email_confirmation"
+        }
+        token = jwt.encode(pay_load, settings.SECRET_KEY, algorithm="HS256")
+        return token
+
+
+class AccountVerificationSerializer(serializers.Serializer):
+    """ Account verification serializer. """
+    token = serializers.CharField()
+
+    def validate_token(self, value):
+        """ Validate token. """
+        try:
+            payload = jwt.decode(value, settings.SECRET_KEY, algorithms=["HS256"])
+        except jwt.ExpiredSignatureError:
+            raise serializers.ValidationError("Verification link has expired.")
+        except jwt.PyJWTError:
+            print(jwt.PyJWKError)
+            raise serializers.ValidationError("Invalid token.")
+
+        if payload["type"] != "email_confirmation":
+            raise serializers.ValidationError("Invalid token.")
+
+        self.context["payload"] = payload
+        return value 
+
+    def create(self, validated_data):
+        payload = self.context.get("payload")
+        user = User.objects.get(username=payload["user"])
+        user.is_verified = True
+        user.save()
+        return user

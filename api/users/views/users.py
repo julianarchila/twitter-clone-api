@@ -11,7 +11,8 @@ from api.users import serializers
 from api.users.serializers import (
     UserLoginSerializer,
     UserModelSerializer,
-    UserSignUpSerializer
+    UserSignUpSerializer,
+    AccountVerificationSerializer
 )
 
 # Models
@@ -46,3 +47,10 @@ class UserViewSet(GenericViewSet):
         }
         return Response(data=data, status=status.HTTP_201_CREATED)
 
+
+    @action(detail=False, methods=["POST"])
+    def verify(self, request, *args, **kwargs):
+        serializers = AccountVerificationSerializer(data=request.data)
+        serializers.is_valid(raise_exception=True)
+        serializers.save()
+        return Response(data={"msg": "You are now able to login"}, status=status.HTTP_202_ACCEPTED)
