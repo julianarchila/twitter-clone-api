@@ -2,7 +2,6 @@
 
 # Django
 from django.db import models
-from django.db.models.fields import NullBooleanField
 
 # Utils
 from api.utils.models import TwModel
