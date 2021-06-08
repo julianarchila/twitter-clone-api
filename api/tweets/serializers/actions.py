@@ -13,7 +13,7 @@ from api.tweets.models import TweetLike, Tweet
 class LikeTweetSerializer(serializers.Serializer):
     """ Like tweet serializer. """
     user = serializers.HiddenField(default=serializers.CurrentUserDefault())
-    tweet = serializers.IntegerField()
+    tweet = serializers.CharField()
 
     def validate_tweet(self, data):
         try:
@@ -38,7 +38,7 @@ class LikeTweetSerializer(serializers.Serializer):
 class RetweetSerializer(serializers.ModelSerializer):
     """ Retweet serializer. """
     user = serializers.HiddenField(default=serializers.CurrentUserDefault())
-    parent = serializers.IntegerField()
+    parent = serializers.CharField()
 
     class Meta:
         model = Tweet

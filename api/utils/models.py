@@ -1,5 +1,6 @@
 """Django models utilities """
 from django.db import models
+import uuid
 
 
 class TwModel(models.Model):
@@ -10,6 +11,7 @@ class TwModel(models.Model):
         *Created {DateTime}
         *Modified {DateTime}
     """
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     created = models.DateTimeField(
         "created at",
         auto_now_add=True,
