@@ -26,8 +26,17 @@ from api.users.models import User
 class UserViewSet(GenericViewSet):
     """ User view set. """
     queryset = User.objects.filter(is_active=True)
-    serializer_class = UserModelSerializer
     lookup_field = "username"
+
+    def get_serializer_class(self):
+        if self.action == "login":
+            return UserLoginSerializer
+        elif self.action == "signup":
+            return UserSignUpSerializer
+        elif self.action == "verify":
+            return AccountVerificationSerializer
+        else:
+            return UserModelSerializer
 
     def get_permissions(self):
         permissions = [AllowAny]

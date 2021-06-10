@@ -33,6 +33,10 @@ class TweetViewSet(
     def get_serializer_class(self):
         if self.action == "create":
             return TweetCreateSerializer
+        elif self.action == "like":
+            return LikeTweetSerializer
+        elif self.action == "retweet":
+            return RetweetSerializer
         else:
             return TweetSerializer
 
