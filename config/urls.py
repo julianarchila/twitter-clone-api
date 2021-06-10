@@ -16,5 +16,5 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path("", include("api.users.urls")),
     path("", include("api.tweets.urls")),
-    path("docs/", include_docs_urls(title="TwittercloneAPI")),
+    path("", include_docs_urls(title="TwittercloneAPI")),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
