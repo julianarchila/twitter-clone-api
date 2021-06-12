@@ -40,7 +40,7 @@ class UserViewSet(GenericViewSet):
 
     def get_permissions(self):
         permissions = [AllowAny]
-        if self.action in ["profile"]:
+        if self.action in ["profile", "me"]:
             permissions.append(IsAuthenticated)
 
         return [p() for p in permissions]
@@ -87,4 +87,9 @@ class UserViewSet(GenericViewSet):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         data = UserModelSerializer(user).data
+        return Response(data=data, status=status.HTTP_200_OK)
+
+    @action(detail=False, methods=["GET"])
+    def me(slef, request, *args, **kwargs):
+        data = UserModelSerializer(request.user).data
         return Response(data=data, status=status.HTTP_200_OK)

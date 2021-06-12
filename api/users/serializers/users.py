@@ -5,7 +5,7 @@ from django.conf import settings
 from django.core.mail import EmailMultiAlternatives
 from django.contrib.auth import authenticate, password_validation
 from django.utils import timezone
-from django.template.loader import render_to_string 
+from django.template.loader import render_to_string
 
 # Django REST Framework
 from django.db.models import fields
@@ -25,6 +25,7 @@ import jwt
 class UserModelSerializer(serializers.ModelSerializer):
     """ User model serializer. """
     profile = ProfileModelSerializer(read_only=True)
+    following_count = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = User
@@ -34,8 +35,12 @@ class UserModelSerializer(serializers.ModelSerializer):
             "first_name",
             "last_name",
             "is_staff",
-            "profile"
+            "profile",
+            "following_count"
         )
+
+    def get_following_count(self, obj):
+        return obj.following.count()
 
 
 class UserLoginSerializer(serializers.Serializer):
@@ -114,14 +119,15 @@ class UserSignUpSerializer(serializers.Serializer):
     def send_confirmation_email(self, user):
         token = self.gen_verification_token(user)
         subject = f"Welcome @{user.username}! Verify your account to start using the app."
-        from_email = settings.EMAIL_HOST_USER 
+        from_email = settings.EMAIL_HOST_USER
 
         content = render_to_string(
             "email_confirmation.html",
             {"token": token, "user": user}
         )
 
-        msg = EmailMultiAlternatives(subject, content, from_email, [user.email])
+        msg = EmailMultiAlternatives(
+            subject, content, from_email, [user.email])
         msg.attach_alternative(content, "text/html")
         msg.send()
 
@@ -143,7 +149,8 @@ class AccountVerificationSerializer(serializers.Serializer):
     def validate_token(self, value):
         """ Validate token. """
         try:
-            payload = jwt.decode(value, settings.SECRET_KEY, algorithms=["HS256"])
+            payload = jwt.decode(
+                value, settings.SECRET_KEY, algorithms=["HS256"])
         except jwt.ExpiredSignatureError:
             raise serializers.ValidationError("Verification link has expired.")
         except jwt.PyJWTError:
@@ -154,7 +161,7 @@ class AccountVerificationSerializer(serializers.Serializer):
             raise serializers.ValidationError("Invalid token.")
 
         self.context["payload"] = payload
-        return value 
+        return value
 
     def create(self, validated_data):
         payload = self.context.get("payload")
