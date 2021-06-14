@@ -12,7 +12,8 @@ from api.tweets.models import Tweet
 
 
 class TweetModelSerializer(serializers.ModelSerializer):
-    """ Tweet Base Serializer"""
+    """Tweet Base Serializer"""
+
     user = UserModelSerializer(read_only=True)
     likes = serializers.SerializerMethodField(read_only=True)
     retweets = serializers.SerializerMethodField(read_only=True)
@@ -36,13 +37,14 @@ class TweetModelSerializer(serializers.ModelSerializer):
 
 
 class TweetSerializer(TweetModelSerializer):
-    """ Tweet serializer with more detail. """
+    """Tweet serializer with more detail."""
+
     parent = TweetModelSerializer(read_only=True)
 
 
-
 class TweetCreateSerializer(serializers.ModelSerializer):
-    """ Create tweet serializer. """
+    """Create tweet serializer."""
+
     user = serializers.HiddenField(default=serializers.CurrentUserDefault())
 
     class Meta:
@@ -51,7 +53,6 @@ class TweetCreateSerializer(serializers.ModelSerializer):
 
     def validate(self, data):
         if not data.get("content") and not data.get("image"):
-            raise serializers.ValidationError(
-                "You can't create a empty tweet.")
+            raise serializers.ValidationError("You can't create a empty tweet.")
 
         return data

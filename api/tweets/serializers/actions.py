@@ -10,8 +10,10 @@ from api.tweets.serializers import TweetModelSerializer
 # Models
 from api.tweets.models import TweetLike, Tweet
 
+
 class LikeTweetSerializer(serializers.Serializer):
-    """ Like tweet serializer. """
+    """Like tweet serializer."""
+
     user = serializers.HiddenField(default=serializers.CurrentUserDefault())
     tweet = serializers.CharField()
 
@@ -20,7 +22,7 @@ class LikeTweetSerializer(serializers.Serializer):
             tweet = Tweet.objects.get(id=data)
         except Tweet.DoesNotExist:
             raise serializers.ValidationError("Tweet not found.")
-        
+
         return tweet
 
     def create(self, validated_data):
@@ -36,7 +38,8 @@ class LikeTweetSerializer(serializers.Serializer):
 
 
 class RetweetSerializer(serializers.ModelSerializer):
-    """ Retweet serializer. """
+    """Retweet serializer."""
+
     user = serializers.HiddenField(default=serializers.CurrentUserDefault())
     parent = serializers.CharField()
 
@@ -44,13 +47,10 @@ class RetweetSerializer(serializers.ModelSerializer):
         model = Tweet
         fields = "__all__"
 
-
     def validate_parent(self, data):
         try:
             parent_tweet = Tweet.objects.get(id=data)
         except Tweet.DoesNotExist:
             raise serializers.ValidationError("Tweet not found.")
-        
-        return parent_tweet
 
-    
+        return parent_tweet

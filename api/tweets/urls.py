@@ -7,6 +7,6 @@ from rest_framework import routers
 from api.tweets.views.tweets import TweetViewSet
 
 router = routers.SimpleRouter()
-router.register(r'tweets', TweetViewSet)
+router.register(r"tweets", TweetViewSet)
 
 urlpatterns = router.urls

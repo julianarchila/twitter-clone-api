@@ -14,7 +14,7 @@ from api.tweets.serializers import (
     TweetSerializer,
     TweetCreateSerializer,
     LikeTweetSerializer,
-    RetweetSerializer
+    RetweetSerializer,
 )
 
 # Models
@@ -22,10 +22,10 @@ from api.tweets.models import Tweet
 
 
 class TweetViewSet(
-        mixins.CreateModelMixin,
-        mixins.RetrieveModelMixin,
-        viewsets.GenericViewSet):
-    """ Tweet view set. """
+    mixins.CreateModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet
+):
+    """Tweet view set."""
+
     queryset = Tweet.objects.all()
     permission_classes = [IsAuthenticated]
 
@@ -48,10 +48,9 @@ class TweetViewSet(
 
     @action(detail=False, methods=["POST"])
     def like(self, request, *args, **kwargs):
-        """ Handles like toogle. """
+        """Handles like toogle."""
         serializer = LikeTweetSerializer(
-            data=request.data,
-            context=self.get_serializer_context()
+            data=request.data, context=self.get_serializer_context()
         )
         serializer.is_valid(raise_exception=True)
         tweet = serializer.save()
@@ -61,8 +60,7 @@ class TweetViewSet(
     @action(detail=False, methods=["POST"])
     def retweet(self, request, *args, **kwargs):
         serializer = RetweetSerializer(
-            data=request.data,
-            context=self.get_serializer_context()
+            data=request.data, context=self.get_serializer_context()
         )
         serializer.is_valid(raise_exception=True)
         tweet = serializer.save()
@@ -71,6 +69,5 @@ class TweetViewSet(
 
     def list(self, request):
         tweets = Tweet.objects.all()
-        serializer = TweetSerializer(
-            tweets, many=True, context={"user": request.user})
+        serializer = TweetSerializer(tweets, many=True, context={"user": request.user})
         return Response(serializer.data, status=status.HTTP_200_OK)

@@ -8,7 +8,8 @@ from api.users.models import Profile
 
 
 class ProfileModelSerializer(serializers.ModelSerializer):
-    """ Profile model serializer """
+    """Profile model serializer"""
+
     followers_count = serializers.SerializerMethodField(read_only=True)
 
     class Meta:

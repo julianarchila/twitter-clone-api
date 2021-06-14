@@ -23,7 +23,8 @@ import jwt
 
 
 class UserModelSerializer(serializers.ModelSerializer):
-    """ User model serializer. """
+    """User model serializer."""
+
     profile = ProfileModelSerializer(read_only=True)
     following_count = serializers.SerializerMethodField(read_only=True)
 
@@ -36,7 +37,7 @@ class UserModelSerializer(serializers.ModelSerializer):
             "last_name",
             "is_staff",
             "profile",
-            "following_count"
+            "following_count",
         )
 
     def get_following_count(self, obj):
@@ -44,7 +45,8 @@ class UserModelSerializer(serializers.ModelSerializer):
 
 
 class UserLoginSerializer(serializers.Serializer):
-    """ User login serializer. """
+    """User login serializer."""
+
     email = serializers.EmailField()
     password = serializers.CharField(min_length=8)
 
@@ -66,14 +68,15 @@ class UserLoginSerializer(serializers.Serializer):
 
 
 class UserSignUpSerializer(serializers.Serializer):
-    """ User signup serializer. 
+    """User signup serializer.
     Handles data validation and user/profile creation.
     """
+
     email = serializers.EmailField(
         validators=[
             UniqueValidator(
                 queryset=User.objects.all(),
-                message="A user with this email already exists."
+                message="A user with this email already exists.",
             )
         ]
     )
@@ -82,10 +85,9 @@ class UserSignUpSerializer(serializers.Serializer):
         max_length=40,
         validators=[
             UniqueValidator(
-                queryset=User.objects.all(),
-                message="This username is already taken"
+                queryset=User.objects.all(), message="This username is already taken"
             )
-        ]
+        ],
     )
 
     first_name = serializers.CharField(min_length=2, max_length=30)
@@ -118,16 +120,16 @@ class UserSignUpSerializer(serializers.Serializer):
 
     def send_confirmation_email(self, user):
         token = self.gen_verification_token(user)
-        subject = f"Welcome @{user.username}! Verify your account to start using the app."
+        subject = (
+            f"Welcome @{user.username}! Verify your account to start using the app."
+        )
         from_email = settings.EMAIL_HOST_USER
 
         content = render_to_string(
-            "email_confirmation.html",
-            {"token": token, "user": user}
+            "email_confirmation.html", {"token": token, "user": user}
         )
 
-        msg = EmailMultiAlternatives(
-            subject, content, from_email, [user.email])
+        msg = EmailMultiAlternatives(subject, content, from_email, [user.email])
         msg.attach_alternative(content, "text/html")
         msg.send()
 
@@ -136,21 +138,21 @@ class UserSignUpSerializer(serializers.Serializer):
         pay_load = {
             "user": user.username,
             "exp": int(exp_date.timestamp()),
-            "type": "email_confirmation"
+            "type": "email_confirmation",
         }
         token = jwt.encode(pay_load, settings.SECRET_KEY, algorithm="HS256")
         return token
 
 
 class AccountVerificationSerializer(serializers.Serializer):
-    """ Account verification serializer. """
+    """Account verification serializer."""
+
     token = serializers.CharField()
 
     def validate_token(self, value):
-        """ Validate token. """
+        """Validate token."""
         try:
-            payload = jwt.decode(
-                value, settings.SECRET_KEY, algorithms=["HS256"])
+            payload = jwt.decode(value, settings.SECRET_KEY, algorithms=["HS256"])
         except jwt.ExpiredSignatureError:
             raise serializers.ValidationError("Verification link has expired.")
         except jwt.PyJWTError:

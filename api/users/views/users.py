@@ -16,7 +16,7 @@ from api.users.serializers import (
     UserLoginSerializer,
     UserModelSerializer,
     UserSignUpSerializer,
-    AccountVerificationSerializer
+    AccountVerificationSerializer,
 )
 
 # Models
@@ -24,7 +24,8 @@ from api.users.models import User
 
 
 class UserViewSet(GenericViewSet):
-    """ User view set. """
+    """User view set."""
+
     queryset = User.objects.filter(is_active=True)
     lookup_field = "username"
 
@@ -50,10 +51,7 @@ class UserViewSet(GenericViewSet):
         serializer = UserLoginSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user, token = serializer.save()
-        data = {
-            "user": UserModelSerializer(user).data,
-            "token": token
-        }
+        data = {"user": UserModelSerializer(user).data, "token": token}
         return Response(data=data, status=status.HTTP_200_OK)
 
     @action(detail=False, methods=["POST"])
@@ -61,10 +59,7 @@ class UserViewSet(GenericViewSet):
         serializer = UserSignUpSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user, token = serializer.save()
-        data = {
-            "user": UserModelSerializer(user).data,
-            "token": token
-        }
+        data = {"user": UserModelSerializer(user).data, "token": token}
         return Response(data=data, status=status.HTTP_201_CREATED)
 
     @action(detail=False, methods=["POST"])
@@ -72,18 +67,16 @@ class UserViewSet(GenericViewSet):
         serializers = AccountVerificationSerializer(data=request.data)
         serializers.is_valid(raise_exception=True)
         serializers.save()
-        return Response(data={"msg": "You are now able to login"}, status=status.HTTP_202_ACCEPTED)
+        return Response(
+            data={"msg": "You are now able to login"}, status=status.HTTP_202_ACCEPTED
+        )
 
     @action(detail=False, methods=["PUT", "PATCH"])
     def profile(self, request, *args, **kwargs):
         user = request.user
         profile = user.profile
         partial = request.method == "PATCH"
-        serializer = ProfileModelSerializer(
-            profile,
-            data=request.data,
-            partial=partial
-        )
+        serializer = ProfileModelSerializer(profile, data=request.data, partial=partial)
         serializer.is_valid(raise_exception=True)
         serializer.save()
         data = UserModelSerializer(user).data
