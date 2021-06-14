@@ -12,10 +12,11 @@ from api.tweets.models import Tweet
 
 
 class TweetModelSerializer(serializers.ModelSerializer):
-    """ Tweet serializer with more detail"""
+    """ Tweet Base Serializer"""
     user = UserModelSerializer(read_only=True)
     likes = serializers.SerializerMethodField(read_only=True)
     retweets = serializers.SerializerMethodField(read_only=True)
+    liked = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = Tweet
@@ -27,23 +28,17 @@ class TweetModelSerializer(serializers.ModelSerializer):
     def get_retweets(self, obj):
         return obj.retweets.count()
 
+    def get_liked(self, obj):
+        request_user = self.context.get("user", None)
+        if request_user == None:
+            print("There is no user in the context. Please check again.")
+        return request_user in obj.likes.all()
 
-class TweetSerializer(serializers.ModelSerializer):
-    """ Tweet model serializer. """
-    user = UserModelSerializer(read_only=True)
+
+class TweetSerializer(TweetModelSerializer):
+    """ Tweet serializer with more detail. """
     parent = TweetModelSerializer(read_only=True)
-    likes = serializers.SerializerMethodField(read_only=True)
-    retweets = serializers.SerializerMethodField(read_only=True)
 
-    class Meta:
-        model = Tweet
-        fields = "__all__"
-
-    def get_likes(self, obj):
-        return obj.likes.count()
-
-    def get_retweets(self, obj):
-        return obj.retweets.count()
 
 
 class TweetCreateSerializer(serializers.ModelSerializer):

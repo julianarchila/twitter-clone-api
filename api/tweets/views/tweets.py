@@ -24,7 +24,6 @@ from api.tweets.models import Tweet
 class TweetViewSet(
         mixins.CreateModelMixin,
         mixins.RetrieveModelMixin,
-        mixins.ListModelMixin,
         viewsets.GenericViewSet):
     """ Tweet view set. """
     queryset = Tweet.objects.all()
@@ -56,7 +55,7 @@ class TweetViewSet(
         )
         serializer.is_valid(raise_exception=True)
         tweet = serializer.save()
-        data = TweetSerializer(tweet).data
+        data = TweetSerializer(tweet, context={"user": request.user}).data
         return Response(data=data, status=status.HTTP_200_OK)
 
     @action(detail=False, methods=["POST"])
@@ -67,5 +66,11 @@ class TweetViewSet(
         )
         serializer.is_valid(raise_exception=True)
         tweet = serializer.save()
-        data = TweetSerializer(tweet).data
+        data = TweetSerializer(tweet, context={"user": request.user}).data
         return Response(data=data, status=status.HTTP_201_CREATED)
+
+    def list(self, request):
+        tweets = Tweet.objects.all()
+        serializer = TweetSerializer(
+            tweets, many=True, context={"user": request.user})
+        return Response(serializer.data, status=status.HTTP_200_OK)

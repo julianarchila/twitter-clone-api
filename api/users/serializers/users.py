@@ -52,9 +52,9 @@ class UserLoginSerializer(serializers.Serializer):
         user = authenticate(username=data["email"], password=data["password"])
         if not user:
             raise serializers.ValidationError("Invalid credentials.")
-        if not user.is_verified:
-            raise serializers.ValidationError(
-                "Verify your email in order to login")
+        # if not user.is_verified:
+        #     raise serializers.ValidationError(
+        #         "Verify your email in order to login")
 
         self.context["user"] = user
         return data
