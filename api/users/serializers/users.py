@@ -29,3 +29,32 @@ class UserModelSerializer(serializers.ModelSerializer):
 
     def get_following_count(self, obj):
         return obj.following.count()
+
+
+class FollowSerializer(serializers.Serializer):
+    """Follow action serializer."""
+
+    user = serializers.CharField()
+
+    def validate_user(self, data):
+        try:
+            user = User.objects.get(username=data)
+        except User.DoesNotExist:
+            raise serializers.ValidationError("User not found.")
+
+        if user == self.context["user"]:
+            raise serializers.ValidationError("You can't follow yourself.")
+        return user
+
+    def create(self, validated_data):
+        user = validated_data["user"]
+        current_user = self.context.get("user")
+        if user.profile.followers.filter(id=current_user.id).exists():
+            current_user.following.remove(user.profile)
+            following = False
+        else:
+            current_user.following.add(user.profile)
+            following = True
+        current_user.save()
+
+        return user, following
