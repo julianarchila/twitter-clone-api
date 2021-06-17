@@ -7,7 +7,6 @@ from rest_framework.decorators import action
 
 # Permissions
 from rest_framework.permissions import IsAuthenticated
-from api.tweets import serializers
 
 # Serializers
 from api.tweets.serializers import (
@@ -43,7 +42,7 @@ class TweetViewSet(
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         tweet = serializer.save()
-        data = TweetSerializer(tweet).data
+        data = TweetSerializer(tweet, context=self.get_serializer_context()).data
         return Response(data=data, status=status.HTTP_201_CREATED)
 
     @action(detail=False, methods=["POST"])
@@ -54,7 +53,7 @@ class TweetViewSet(
         )
         serializer.is_valid(raise_exception=True)
         tweet = serializer.save()
-        data = TweetSerializer(tweet, context={"user": request.user}).data
+        data = TweetSerializer(tweet, context=self.get_serializer_context()).data
         return Response(data=data, status=status.HTTP_200_OK)
 
     @action(detail=False, methods=["POST"])
@@ -64,10 +63,5 @@ class TweetViewSet(
         )
         serializer.is_valid(raise_exception=True)
         tweet = serializer.save()
-        data = TweetSerializer(tweet, context={"user": request.user}).data
+        data = TweetSerializer(tweet, context=self.get_serializer_context()).data
         return Response(data=data, status=status.HTTP_201_CREATED)
-
-    def list(self, request):
-        tweets = Tweet.objects.all()
-        serializer = TweetSerializer(tweets, many=True, context={"user": request.user})
-        return Response(serializer.data, status=status.HTTP_200_OK)

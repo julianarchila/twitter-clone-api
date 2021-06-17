@@ -50,6 +50,7 @@ THIRD_PARTY_APPS = ["rest_framework", "rest_framework.authtoken", "corsheaders"]
 LOCAL_APPS = [
     "api.users.apps.UsersAppConfig",
     "api.tweets.apps.TweetsAppConfig",
+    "api.feed.apps.FeedAppConfig",
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS

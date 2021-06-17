@@ -13,8 +13,9 @@ from rest_framework.documentation import include_docs_urls
 
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    path("admin/", admin.site.urls),
     path("", include("api.users.urls")),
     path("", include("api.tweets.urls")),
+    path("", include("api.feed.urls")),
     path("", include_docs_urls(title="TwittercloneAPI")),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

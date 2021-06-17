@@ -15,7 +15,7 @@ from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated, AllowAny
 
 # Serializers
-from api.users.serializers import UserModelSerializer, FollowSerializer
+from api.users.serializers import UserModelSerializer, FollowSerializer, UserSerializer
 
 # Models
 from api.users.models import User
@@ -28,7 +28,7 @@ class UserViewSet(GenericViewSet, mixins.RetrieveModelMixin):
     lookup_field = "username"
 
     def get_serializer_class(self):
-        return UserModelSerializer
+        return UserSerializer
 
     def get_permissions(self):
         permissions = [AllowAny]
@@ -48,13 +48,11 @@ class UserViewSet(GenericViewSet, mixins.RetrieveModelMixin):
         data = UserModelSerializer(user).data
         return Response(data=data, status=status.HTTP_200_OK)
 
-    @action(detail=False, methods=["GET"])
-    def follow(self, request, *args, **kwargs):
+    @action(detail=False, methods=["POST"])
+    def follow_toogle(self, request, *args, **kwargs):
         """Toggle follow endpoint."""
 
-        serializer = FollowSerializer(
-            data=request.query_params, context={"user": request.user}
-        )
+        serializer = FollowSerializer(data=request.data, context={"user": request.user})
         serializer.is_valid(raise_exception=True)
         user, following = serializer.save()
         data = {

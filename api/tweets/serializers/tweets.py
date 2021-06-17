@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 from rest_framework import serializers, validators
 
 # Serializers
-from api.users.serializers import UserModelSerializer
+from api.users.serializers import UserModelSerializer, UserSerializer
 
 # Models
 from api.tweets.models import Tweet
@@ -14,7 +14,7 @@ from api.tweets.models import Tweet
 class TweetModelSerializer(serializers.ModelSerializer):
     """Tweet Base Serializer"""
 
-    user = UserModelSerializer(read_only=True)
+    user = UserSerializer(read_only=True)
     likes = serializers.SerializerMethodField(read_only=True)
     retweets = serializers.SerializerMethodField(read_only=True)
     liked = serializers.SerializerMethodField(read_only=True)
@@ -30,7 +30,7 @@ class TweetModelSerializer(serializers.ModelSerializer):
         return obj.retweets.count()
 
     def get_liked(self, obj):
-        request_user = self.context.get("user", None)
+        request_user = self.context["request"].user
         if request_user == None:
             print("There is no user in the context. Please check again.")
         return request_user in obj.likes.all()
