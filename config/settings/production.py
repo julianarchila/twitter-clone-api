@@ -6,4 +6,4 @@ import dj_database_url
 
 DATABASES = {"default": dj_database_url.config(default=env.str("DATABASE_URL"))}
 
-STATICFILES_STORAGE = "custome_storage.static_azure.StaticAzureStorage"
+STATICFILES_STORAGE = "custom_storage.static_azure.StaticAzureStorage"
