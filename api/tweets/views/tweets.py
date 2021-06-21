@@ -7,6 +7,7 @@ from rest_framework.decorators import action
 
 # Permissions
 from rest_framework.permissions import IsAuthenticated
+from api.tweets.permissions import IsTweetOwner
 
 # Serializers
 from api.tweets.serializers import (
@@ -21,12 +22,14 @@ from api.tweets.models import Tweet
 
 
 class TweetViewSet(
-    mixins.CreateModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet
+    mixins.CreateModelMixin,
+    mixins.RetrieveModelMixin,
+    mixins.DestroyModelMixin,
+    viewsets.GenericViewSet,
 ):
     """Tweet view set."""
 
     queryset = Tweet.objects.all()
-    permission_classes = [IsAuthenticated]
 
     def get_serializer_class(self):
         if self.action == "create":
@@ -37,6 +40,12 @@ class TweetViewSet(
             return RetweetSerializer
         else:
             return TweetSerializer
+
+    def get_permissions(self):
+        permissions = [IsAuthenticated]
+        if self.action == "destroy":
+            permissions.append(IsTweetOwner)
+        return [p() for p in permissions]
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)

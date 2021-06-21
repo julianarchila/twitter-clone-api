@@ -28,7 +28,12 @@ class UserViewSet(GenericViewSet, mixins.RetrieveModelMixin):
     lookup_field = "username"
 
     def get_serializer_class(self):
-        return UserSerializer
+        if self.action == "profile":
+            return ProfileModelSerializer
+        elif self.action == "follow_toggle":
+            return FollowSerializer
+        else:
+            return UserSerializer
 
     def get_permissions(self):
         permissions = [AllowAny]
