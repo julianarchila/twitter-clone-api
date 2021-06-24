@@ -1,15 +1,12 @@
 """ User views. """
 
 # Django REST Framework
-from api.tweets import serializers
-from decimal import Context
-from django.db.models.fields import FloatField
-from rest_framework import permissions
 from api.users.serializers.profiles import ProfileModelSerializer
 from rest_framework.response import Response
 from rest_framework import status, mixins
 from rest_framework.viewsets import GenericViewSet
 from rest_framework.decorators import action
+from rest_framework.filters import SearchFilter
 
 # Permissions
 from rest_framework.permissions import IsAuthenticated, AllowAny
@@ -21,11 +18,14 @@ from api.users.serializers import UserModelSerializer, FollowSerializer, UserSer
 from api.users.models import User
 
 
-class UserViewSet(GenericViewSet, mixins.RetrieveModelMixin):
+class UserViewSet(GenericViewSet, mixins.RetrieveModelMixin, mixins.ListModelMixin):
     """User view set."""
 
     queryset = User.objects.filter(is_active=True)
     lookup_field = "username"
+    filter_backends = [SearchFilter]
+    search_fields = ["username"]
+    queryset = User.objects.filter(is_active=True).order_by("profile__followers__count")
 
     def get_serializer_class(self):
         if self.action == "profile":
