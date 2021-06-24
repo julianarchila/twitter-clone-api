@@ -4,8 +4,7 @@
 from rest_framework import status
 from rest_framework.generics import GenericAPIView, ListAPIView
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
-from api.tweets import serializers
+from rest_framework.permissions import AllowAny, IsAuthenticated
 
 # Serializers
 from api.tweets.serializers import TweetSerializer
@@ -38,7 +37,7 @@ class HomeFeed(ListAPIView):
 
 class ProfileFeed(GenericAPIView):
     "User profile feed view."
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
 
     def get(self, request):
         try:

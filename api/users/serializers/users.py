@@ -66,6 +66,10 @@ class UserSerializer(serializers.ModelSerializer):
         request_user = self.context["request"].user
         if request_user == None:
             print("There is no user in the context. Please check again.")
+            return False
+
+        if not request_user.is_authenticated:
+            return False
         return obj.profile in request_user.following.all()
 
 
