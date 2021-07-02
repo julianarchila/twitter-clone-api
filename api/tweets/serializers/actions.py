@@ -41,6 +41,7 @@ class RetweetSerializer(serializers.ModelSerializer):
     """Retweet serializer."""
 
     user = serializers.HiddenField(default=serializers.CurrentUserDefault())
+    retweet = serializers.HiddenField(default=True)
     parent = serializers.CharField()
 
     class Meta:

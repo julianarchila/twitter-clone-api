@@ -51,7 +51,8 @@ class TweetViewSet(
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         tweet = serializer.save()
-        data = TweetSerializer(tweet, context=self.get_serializer_context()).data
+        data = TweetSerializer(
+            tweet, context=self.get_serializer_context()).data
         return Response(data=data, status=status.HTTP_201_CREATED)
 
     @action(detail=False, methods=["POST"])
@@ -62,7 +63,8 @@ class TweetViewSet(
         )
         serializer.is_valid(raise_exception=True)
         tweet = serializer.save()
-        data = TweetSerializer(tweet, context=self.get_serializer_context()).data
+        data = TweetSerializer(
+            tweet, context=self.get_serializer_context()).data
         return Response(data=data, status=status.HTTP_200_OK)
 
     @action(detail=False, methods=["POST"])
@@ -72,5 +74,6 @@ class TweetViewSet(
         )
         serializer.is_valid(raise_exception=True)
         tweet = serializer.save()
-        data = TweetSerializer(tweet, context=self.get_serializer_context()).data
+        data = TweetSerializer(
+            tweet, context=self.get_serializer_context()).data
         return Response(data=data, status=status.HTTP_201_CREATED)

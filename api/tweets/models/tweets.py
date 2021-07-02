@@ -32,3 +32,4 @@ class Tweet(TwModel):
     likes = models.ManyToManyField(
         "users.User", related_name="liked_tweets", blank=True, through=TweetLike
     )
+    retweet = models.BooleanField(default=False)
