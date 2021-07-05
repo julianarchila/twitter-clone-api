@@ -6,6 +6,7 @@ from rest_framework.response import Response
 from rest_framework import status, mixins
 from rest_framework.viewsets import GenericViewSet
 from rest_framework.decorators import action
+from rest_framework.filters import SearchFilter
 
 # Permissions
 from rest_framework.permissions import IsAuthenticated, AllowAny
@@ -23,8 +24,8 @@ class UserViewSet(GenericViewSet, mixins.RetrieveModelMixin, mixins.ListModelMix
     queryset = User.objects.filter(is_active=True)
     lookup_field = "username"
     search_fields = ["username"]
-    queryset = User.objects.filter(is_active=True).order_by(
-        "profile__followers__count")
+    filter_backends = [SearchFilter]
+    queryset = User.objects.filter(is_active=True).order_by("profile__followers__count")
 
     def get_serializer_class(self):
         if self.action == "profile":
@@ -43,17 +44,18 @@ class UserViewSet(GenericViewSet, mixins.RetrieveModelMixin, mixins.ListModelMix
 
     def list(self, request, *args, **kwargs):
         if not request.query_params.get("search", None):
-            return Response({"message": "no search param"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"message": "no search param"}, status=status.HTTP_400_BAD_REQUEST
+            )
 
-        return super().list(request, *args, **kwargs)
+        return super().list(self, request, *args, **kwargs)
 
     @action(detail=False, methods=["PUT", "PATCH"])
     def profile(self, request, *args, **kwargs):
         user = request.user
         profile = user.profile
         partial = request.method == "PATCH"
-        serializer = ProfileModelSerializer(
-            profile, data=request.data, partial=partial)
+        serializer = ProfileModelSerializer(profile, data=request.data, partial=partial)
         serializer.is_valid(raise_exception=True)
         serializer.save()
         data = UserModelSerializer(user).data
@@ -63,8 +65,7 @@ class UserViewSet(GenericViewSet, mixins.RetrieveModelMixin, mixins.ListModelMix
     def follow_toogle(self, request, *args, **kwargs):
         """Toggle follow endpoint."""
 
-        serializer = FollowSerializer(
-            data=request.data, context={"user": request.user})
+        serializer = FollowSerializer(data=request.data, context={"user": request.user})
         serializer.is_valid(raise_exception=True)
         user, following = serializer.save()
         data = {
