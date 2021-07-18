@@ -3,9 +3,6 @@
 # Utils
 import json
 
-# Django
-from django.test import TestCase
-
 # Django REST Framework
 from rest_framework.authtoken.models import Token
 from rest_framework.test import APITestCase
@@ -40,8 +37,15 @@ class TweetTestApiCase(APITestCase):
             "content": "Test tweet content",
         }
         request = self.client.post(self.url, data)
+
+        # Check status code
         self.assertEqual(request.status_code, 201)
+
+        # Test tweet exists in database
         self.assertEqual(Tweet.objects.count(), 1)
+
+        # Test tweet created by authenticated user
+        self.assertEqual(Tweet.objects.first().user, self.user)
 
     def test_tweet_create_field_validation(self):
         """Test tweet create api validation. 
